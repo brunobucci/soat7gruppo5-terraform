@@ -1,4 +1,4 @@
-name: Deploy Three Spring Boot Applications
+name: Deploy Three Spring Boot Applications with Java 21
 
 on:
   push:
@@ -10,15 +10,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Configurações comuns
+      # Configuração inicial
       - name: Checkout Terraform repository
         uses: actions/checkout@v3
 
-      - name: Set up Java
+      - name: Set up Java 21
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '17' # Alterar se usar outra versão do Java
+          java-version: '21' # Atualizado para Java 21
 
       - name: Cache Maven repository
         uses: actions/cache@v3
@@ -35,7 +35,7 @@ jobs:
           git clone https://github.com/brunobucci/soat7grupo5-pedido.git pedido
           cd pedido
 
-          # Executar testes com cobertura
+          # Instalar dependências e executar testes com cobertura
           mvn clean verify
           coverage=$(mvn jacoco:report | grep -oP 'instructionCoverage\s*=\s*\K[0-9.]+')
           echo "Coverage for Pedido: $coverage%"
@@ -49,7 +49,7 @@ jobs:
           cd ..
 
           # Deploy para o EC2
-          scp -o StrictHostKeyChecking=no -i "$AWS_PRIVATE_KEY" pedido/target/*.jar ec2-user@${AWS_HOST_PEDIDO}:/home/ec2-user/
+          scp -o StrictHostKeyChecking=no -i "$AWS_PRIVATE_KEY" pedido/target/*.jar ec2-user@${AWS_HOST_PEDIDO}:/home/ubuntu/
           ssh -o StrictHostKeyChecking=no -i "$AWS_PRIVATE_KEY" ec2-user@${AWS_HOST_PEDIDO} "sudo systemctl restart pedido-app"
 
       - name: Build and Deploy Producao Application
@@ -58,7 +58,7 @@ jobs:
           git clone https://github.com/brunobucci/soat7grupo5-producao.git producao
           cd producao
 
-          # Executar testes com cobertura
+          # Instalar dependências e executar testes com cobertura
           mvn clean verify
           coverage=$(mvn jacoco:report | grep -oP 'instructionCoverage\s*=\s*\K[0-9.]+')
           echo "Coverage for Producao: $coverage%"
@@ -72,7 +72,7 @@ jobs:
           cd ..
 
           # Deploy para o EC2
-          scp -o StrictHostKeyChecking=no -i "$AWS_PRIVATE_KEY" producao/target/*.jar ec2-user@${AWS_HOST_PRODUCAO}:/home/ec2-user/
+          scp -o StrictHostKeyChecking=no -i "$AWS_PRIVATE_KEY" producao/target/*.jar ec2-user@${AWS_HOST_PRODUCAO}:/home/ubuntu/
           ssh -o StrictHostKeyChecking=no -i "$AWS_PRIVATE_KEY" ec2-user@${AWS_HOST_PRODUCAO} "sudo systemctl restart producao-app"
 
       - name: Build and Deploy Pagamento Application
@@ -81,7 +81,7 @@ jobs:
           git clone https://github.com/brunobucci/soat7grupo5-pagamento.git pagamento
           cd pagamento
 
-          # Executar testes com cobertura
+          # Instalar dependências e executar testes com cobertura
           mvn clean verify
           coverage=$(mvn jacoco:report | grep -oP 'instructionCoverage\s*=\s*\K[0-9.]+')
           echo "Coverage for Pagamento: $coverage%"
@@ -95,5 +95,5 @@ jobs:
           cd ..
 
           # Deploy para o EC2
-          scp -o StrictHostKeyChecking=no -i "$AWS_PRIVATE_KEY" pagamento/target/*.jar ec2-user@${AWS_HOST_PAGAMENTO}:/home/ec2-user/
+          scp -o StrictHostKeyChecking=no -i "$AWS_PRIVATE_KEY" pagamento/target/*.jar ec2-user@${AWS_HOST_PAGAMENTO}:/home/ubuntu/
           ssh -o StrictHostKeyChecking=no -i "$AWS_PRIVATE_KEY" ec2-user@${AWS_HOST_PAGAMENTO} "sudo systemctl restart pagamento-app"
