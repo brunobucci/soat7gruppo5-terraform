@@ -28,33 +28,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven
 
-      # Build e deploy de cada aplicação
-      - name: Build and Deploy Pedido Application
-        run: |
-          # Clonar o repositório
-          git clone https://github.com/brunobucci/soat7grupo5-pedido.git pedido
-          cd pedido
-
-          # Mudar para a branch develop
-          git checkout develop
-
-          # Instalar dependências e executar testes com cobertura
-          mvn clean verify
-          coverage=$(mvn jacoco:report | grep -oP 'instructionCoverage\s*=\s*\K[0-9.]+')
-          echo "Coverage for Pedido: $coverage%"
-          if (( $(echo "$coverage < 80" | bc -l) )); then
-            echo "Coverage for Pedido is below 80%! Exiting."
-            exit 1
-          fi
-
-          # Build do artefato
-          mvn clean package -DskipTests
-          cd ..
-
-          # Deploy para o EC2
-          scp -o StrictHostKeyChecking=no -i "$AWS_PRIVATE_KEY" pedido/target/*.jar ec2-user@${AWS_HOST_PEDIDO}:/home/ubuntu/
-          ssh -o StrictHostKeyChecking=no -i "$AWS_PRIVATE_KEY" ec2-user@${AWS_HOST_PEDIDO} "sudo systemctl restart pedido-app"
-
       - name: Build and Deploy Producao Application
         run: |
           # Clonar o repositório
@@ -80,29 +53,3 @@ jobs:
           # Deploy para o EC2
           scp -o StrictHostKeyChecking=no -i "$AWS_PRIVATE_KEY" producao/target/*.jar ec2-user@${AWS_HOST_PRODUCAO}:/home/ubuntu/
           ssh -o StrictHostKeyChecking=no -i "$AWS_PRIVATE_KEY" ec2-user@${AWS_HOST_PRODUCAO} "sudo systemctl restart producao-app"
-
-      - name: Build and Deploy Pagamento Application
-        run: |
-          # Clonar o repositório
-          git clone https://github.com/brunobucci/soat7grupo5-pagamento.git pagamento
-          cd pagamento
-
-          # Mudar para a branch develop
-          git checkout develop
-
-          # Instalar dependências e executar testes com cobertura
-          mvn clean verify
-          coverage=$(mvn jacoco:report | grep -oP 'instructionCoverage\s*=\s*\K[0-9.]+')
-          echo "Coverage for Pagamento: $coverage%"
-          if (( $(echo "$coverage < 80" | bc -l) )); then
-            echo "Coverage for Pagamento is below 80%! Exiting."
-            exit 1
-          fi
-
-          # Build do artefato
-          mvn clean package -DskipTests
-          cd ..
-
-          # Deploy para o EC2
-          scp -o StrictHostKeyChecking=no -i "$AWS_PRIVATE_KEY" pagamento/target/*.jar ec2-user@${AWS_HOST_PAGAMENTO}:/home/ubuntu/
-          ssh -o StrictHostKeyChecking=no -i "$AWS_PRIVATE_KEY" ec2-user@${AWS_HOST_PAGAMENTO} "sudo systemctl restart pagamento-app"
