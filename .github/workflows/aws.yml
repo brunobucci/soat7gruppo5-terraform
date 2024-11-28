@@ -35,6 +35,9 @@ jobs:
           git clone https://github.com/brunobucci/soat7grupo5-pedido.git pedido
           cd pedido
 
+          # Mudar para a branch develop
+          git checkout develop
+
           # Instalar dependências e executar testes com cobertura
           mvn clean verify
           coverage=$(mvn jacoco:report | grep -oP 'instructionCoverage\s*=\s*\K[0-9.]+')
@@ -58,6 +61,9 @@ jobs:
           git clone https://github.com/brunobucci/soat7grupo5-producao.git producao
           cd producao
 
+          # Mudar para a branch develop
+          git checkout develop
+
           # Instalar dependências e executar testes com cobertura
           mvn clean verify
           coverage=$(mvn jacoco:report | grep -oP 'instructionCoverage\s*=\s*\K[0-9.]+')
@@ -80,6 +86,9 @@ jobs:
           # Clonar o repositório
           git clone https://github.com/brunobucci/soat7grupo5-pagamento.git pagamento
           cd pagamento
+
+          # Mudar para a branch develop
+          git checkout develop
 
           # Instalar dependências e executar testes com cobertura
           mvn clean verify
