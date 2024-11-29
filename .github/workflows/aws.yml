@@ -3,8 +3,10 @@ name: Deploy Spring Boot Application with Java 21
 on:
   push:
     branches:
+      # Inclui a branch develop para execução do workflow.
       - main
-      - develop # Inclui a branch develop para execução do workflow.
+      - develop 
+      - test
 
 jobs:
   build-and-deploy:
