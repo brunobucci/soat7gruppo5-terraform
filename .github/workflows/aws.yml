@@ -56,17 +56,18 @@ jobs:
       - name: Deploy to EC2
         env:
           AWS_PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY }}
-          AWS_HOST: ${{ secrets.AWS_HOST_PRODUCAO }}
+          AWS_HOST: ${{ secrets.AWS_HOST_PRODUCAO }} # Usando a secret específica para producao
         run: |
           # Criar arquivo temporário para a chave privada
           echo "$AWS_PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
-
+      
           # Fazer o upload do arquivo .jar para a instância EC2
           scp -o StrictHostKeyChecking=no -i private_key.pem target/*.jar ubuntu@$AWS_HOST:/home/ubuntu/
-
+      
           # Reiniciar o serviço na instância EC2
           ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@$AWS_HOST "sudo systemctl restart producao-app"
-
+      
           # Remover a chave privada temporária
           rm -f private_key.pem
+
