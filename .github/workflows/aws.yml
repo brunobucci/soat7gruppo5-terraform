@@ -46,17 +46,25 @@ jobs:
           cd producao
           mvn clean verify
 
-      - name: Build do artefato
-        run: |
-          # Build do artefato
-          cd producao
-          mvn clean package -DskipTests
-          cd ..
+      # Build da aplicação
+      - name: Build application
+        run: mvn clean package -DskipTests
 
-
-      - name: Deploy to ec2
+      # Deploy para o EC2
+      - name: Deploy to EC2
+        env:
+          AWS_PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY }}
+          AWS_HOST: ${{ secrets.AWS_HOST_PRODUCAO }}
         run: |
-          # Deploy para o EC2
-          cd producao
-          scp -o StrictHostKeyChecking=no -i "$AWS_PRIVATE_KEY" producao/target/*.jar ec2-user@${AWS_HOST_PRODUCAO}:/home/ubuntu/
-          ssh -o StrictHostKeyChecking=no -i "$AWS_PRIVATE_KEY" ec2-user@${AWS_HOST_PRODUCAO} "sudo systemctl restart producao-app"
+          # Criar arquivo temporário para a chave privada
+          echo "$AWS_PRIVATE_KEY" > private_key.pem
+          chmod 600 private_key.pem
+
+          # Fazer o upload do arquivo .jar para a instância EC2
+          scp -o StrictHostKeyChecking=no -i private_key.pem target/*.jar ubuntu@$AWS_HOST:/home/ubuntu/
+
+          # Reiniciar o serviço na instância EC2
+          ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@$AWS_HOST "sudo systemctl restart producao-app"
+
+          # Remover a chave privada temporária
+          rm -f private_key.pem
