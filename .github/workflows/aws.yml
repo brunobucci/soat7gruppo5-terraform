@@ -35,7 +35,7 @@ jobs:
           cd producao
 
           # Mudar para a branch develop
-          git checkout develop
+          git checkout test
 
           # Instalar dependências e executar testes com cobertura
           mvn clean verify
