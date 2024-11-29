@@ -28,22 +28,31 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven
 
-      - name: Build and Deploy Producao Application
+      - name: Clone da aplicacao
         run: |
           # Clonar o repositório
           git clone https://github.com/brunobucci/soat7grupo5-producao.git producao
           cd producao
 
+      - name: Branch Test
+        run: |
           # Mudar para a branch develop
           git checkout test
 
+      - name: Maven Clean Verify
+        run: |
           # Instalar dependências e executar testes com cobertura
           mvn clean verify
 
+      - name: Build do artefato
+        run: |
           # Build do artefato
           mvn clean package -DskipTests
           cd ..
 
+
+      - name: Deploy to ec2
+        run: |
           # Deploy para o EC2
           scp -o StrictHostKeyChecking=no -i "$AWS_PRIVATE_KEY" producao/target/*.jar ec2-user@${AWS_HOST_PRODUCAO}:/home/ubuntu/
           ssh -o StrictHostKeyChecking=no -i "$AWS_PRIVATE_KEY" ec2-user@${AWS_HOST_PRODUCAO} "sudo systemctl restart producao-app"
