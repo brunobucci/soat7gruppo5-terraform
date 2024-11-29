@@ -39,12 +39,6 @@ jobs:
 
           # Instalar dependências e executar testes com cobertura
           mvn clean verify
-          coverage=$(mvn jacoco:report | grep -oP 'instructionCoverage\s*=\s*\K[0-9.]+')
-          echo "Coverage for Producao: $coverage%"
-          #if (( $(echo "$coverage < 80" | bc -l) )); then
-          #  echo "Coverage for Producao is below 80%! Exiting."
-          #  exit 1
-          #fi
 
           # Build do artefato
           mvn clean package -DskipTests
