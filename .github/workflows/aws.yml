@@ -37,16 +37,19 @@ jobs:
       - name: Branch Test
         run: |
           # Mudar para a branch develop
+          cd producao
           git checkout test
 
       - name: Maven Clean Verify
         run: |
           # Instalar dependências e executar testes com cobertura
+          cd producao
           mvn clean verify
 
       - name: Build do artefato
         run: |
           # Build do artefato
+          cd producao
           mvn clean package -DskipTests
           cd ..
 
@@ -54,5 +57,6 @@ jobs:
       - name: Deploy to ec2
         run: |
           # Deploy para o EC2
+          cd producao
           scp -o StrictHostKeyChecking=no -i "$AWS_PRIVATE_KEY" producao/target/*.jar ec2-user@${AWS_HOST_PRODUCAO}:/home/ubuntu/
           ssh -o StrictHostKeyChecking=no -i "$AWS_PRIVATE_KEY" ec2-user@${AWS_HOST_PRODUCAO} "sudo systemctl restart producao-app"
