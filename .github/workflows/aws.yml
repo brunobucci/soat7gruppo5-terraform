@@ -46,11 +46,13 @@ jobs:
           cd producao
           mvn clean verify
 
-      # Build da aplicação
-      - name: Build application
-        run: mvn clean package -DskipTests
+      - name: Build da aplicação
+        run: |
+          cd producao
+          mvn clean package -DskipTests
+          cd ..
 
-      # Deploy para o EC2
+        
       - name: Deploy to EC2
         env:
           AWS_PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY }}
