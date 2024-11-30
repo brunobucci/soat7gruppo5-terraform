@@ -33,35 +33,35 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven
 
-      # Clonar o repositório da aplicação
-      - name: Clone Application Repository
+      # Clonar o repositório da aplicação Producao
+      - name: Clone Producao Repo
         run: git clone https://github.com/brunobucci/soat7grupo5-producao.git producao
 
       # Mudar para a branch de testes
-      - name: Checkout Test Branch
+      - name: Checkout Producao Test Branch
         run: |
           cd producao
           git checkout test
 
       # Executar os testes com cobertura
-      - name: Run Tests with Coverage
+      - name: Run Tests Producao with Coverage
         run: |
           cd producao
           mvn clean verify
 
       # Build da aplicação
-      - name: Build Application
+      - name: Build Producao Application
         run: |
           cd producao
           mvn clean package -DskipTests
 
       # Verificar o arquivo .jar gerado
-      - name: Verify Build Output
+      - name: Verify Producao Build Output
         run: |
           ls -l producao/target/
 
       # Deploy para a instância EC2
-      - name: Deploy to EC2
+      - name: Deploy Producao to EC2
         env:
           AWS_PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY }}
           AWS_HOST: ${{ secrets.AWS_HOST_PRODUCAO }}
@@ -75,6 +75,99 @@ jobs:
 
           # Reiniciar o serviço na instância EC2
           ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@$AWS_HOST "sudo systemctl restart producao-app"
+
+          # Remover a chave privada temporária
+          rm -f private_key.pem
+
+
+      # Clonar o repositório da aplicação Pedido
+      - name: Clone Pedido Repo
+        run: git clone https://github.com/brunobucci/soat7grupo5-pedido.git pedido
+
+      # Mudar para a branch de testes
+      - name: Checkout Pedido Test Branch
+        run: |
+          cd pedido
+          git checkout test
+
+      # Executar os testes com cobertura
+      - name: Run Tests Pedido with Coverage
+        run: |
+          cd pedido
+          mvn clean verify
+
+      # Build da aplicação
+      - name: Build Pedido Application
+        run: |
+          cd pedido
+          mvn clean package -DskipTests
+
+      # Verificar o arquivo .jar gerado
+      - name: Verify Pedido Build Output
+        run: |
+          ls -l pedido/target/
+
+      # Deploy para a instância EC2
+      - name: Deploy Pedido to EC2
+        env:
+          AWS_PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY }}
+          AWS_HOST: ${{ secrets.AWS_HOST_PEDIDO }}
+        run: |
+          # Criar arquivo temporário para a chave privada
+          echo "$AWS_PRIVATE_KEY" > private_key.pem
+          chmod 600 private_key.pem
+
+          # Fazer o upload do arquivo .jar para a instância EC2
+          scp -o StrictHostKeyChecking=no -i private_key.pem pedido/target/*.jar ubuntu@$AWS_HOST:/home/ubuntu/
+
+          # Reiniciar o serviço na instância EC2
+          ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@$AWS_HOST "sudo systemctl restart pedido-app"
+
+          # Remover a chave privada temporária
+          rm -f private_key.pem
+          
+      # Clonar o repositório da aplicação Pagamento
+      - name: Clone pagamento Repo
+        run: git clone https://github.com/brunobucci/soat7grupo5-pagamento.git pagamento
+
+      # Mudar para a branch de testes
+      - name: Checkout Pagamento Test Branch
+        run: |
+          cd pagamento
+          git checkout test
+
+      # Executar os testes com cobertura
+      - name: Run Tests Pagamento with Coverage
+        run: |
+          cd pagamento
+          mvn clean verify
+
+      # Build da aplicação
+      - name: Build Pagamento Application
+        run: |
+          cd pagamento
+          mvn clean package -DskipTests
+
+      # Verificar o arquivo .jar gerado
+      - name: Verify Pagamento Build Output
+        run: |
+          ls -l pagamento/target/
+
+      # Deploy para a instância EC2
+      - name: Deploy Pagamento to EC2
+        env:
+          AWS_PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY }}
+          AWS_HOST: ${{ secrets.AWS_HOST_pagamento }}
+        run: |
+          # Criar arquivo temporário para a chave privada
+          echo "$AWS_PRIVATE_KEY" > private_key.pem
+          chmod 600 private_key.pem
+
+          # Fazer o upload do arquivo .jar para a instância EC2
+          scp -o StrictHostKeyChecking=no -i private_key.pem pagamento/target/*.jar ubuntu@$AWS_HOST:/home/ubuntu/
+
+          # Reiniciar o serviço na instância EC2
+          ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@$AWS_HOST "sudo systemctl restart pagamento-app"
 
           # Remover a chave privada temporária
           rm -f private_key.pem
